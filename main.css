@@ -1,0 +1,45 @@
+body {
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  font-family: sans-serif;
+  font-weight: lighter;
+}
+
+.players {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 24px;
+  color: #334;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+}
+
+.player1,
+.player2 {
+  font-weight: lighter;
+}
+
+.board {
+  width: 600px;
+  height: 600px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  grid-gap: 20px;
+}
+
+.block {
+  display: grid;
+  place-items: center;
+  font-size: 64px;
+  color: white;
+  background: #334;
+  transition-duration: 0.3s;
+  cursor: pointer;
+}
+
+.block:hover {
+  background: #4b4b64;
+}
