@@ -6,19 +6,52 @@ body {
   font-weight: lighter;
 }
 
+button {
+  font-size: 36px;
+  cursor: pointer;
+}
+
+.restart {
+  display: block;
+  margin: 24px auto 0;
+}
+
+.hide {
+  display: none;
+}
+
 .players {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 24px;
-  color: #334;
-  text-transform: uppercase;
-  margin-bottom: 24px;
+  position: relative;
+  margin-bottom: 36px;
 }
-
 .player1,
 .player2 {
+  position: relative;
+}
+
+.player1 > h2,
+.player2 > h2 {
+  color: #334;
+  font-size: 36px;
   font-weight: lighter;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.crown {
+  position: absolute;
+  top: -250%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  display: none;
+}
+
+.crown.active {
+  display: block;
 }
 
 .board {
@@ -38,6 +71,10 @@ body {
   background: #334;
   transition-duration: 0.3s;
   cursor: pointer;
+}
+
+.block.winning {
+  color: cyan;
 }
 
 .block:hover {

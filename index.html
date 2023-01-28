@@ -8,10 +8,19 @@
     <title>Document</title>
   </head>
   <body>
-    <div>
+    <button class="start">START</button>
+
+    <div class="game hide">
       <div class="players">
-        <h2 class="player1">Player 1</h2>
-        <h2 class="player2">Player 2</h2>
+        <div class="player1">
+          <img src="crown.svg" alt="winner-crown" class="crown" />
+          <h2>Player 1</h2>
+        </div>
+
+        <div class="player2">
+          <img src="crown.svg" alt="winner-crown" class="crown" />
+          <h2>Player 2</h2>
+        </div>
       </div>
 
       <div class="board">
@@ -25,6 +34,8 @@
         <div class="block"></div>
         <div class="block"></div>
       </div>
+
+      <button class="restart hide">RESTART</button>
     </div>
 
     <script src="main.js" defer></script>

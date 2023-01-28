@@ -1,5 +1,10 @@
-const $player1Name = document.querySelector(".player1");
-const $player2Name = document.querySelector(".player2");
+const $startButton = document.querySelector(".start");
+const $restartButton = document.querySelector(".restart");
+const $game = document.querySelector(".game");
+const $player1Name = document.querySelector(".player1 h2");
+const $player2Name = document.querySelector(".player2 h2");
+const $player1Crown = document.querySelector(".player1 .crown");
+const $player2Crown = document.querySelector(".player2 .crown");
 
 const $board = document.querySelector(".board");
 const $blocks = [...$board.querySelectorAll(".block")];
@@ -7,97 +12,107 @@ const $blocks = [...$board.querySelectorAll(".block")];
 const X = "X";
 const O = "O";
 
-const Game = (() => {
-  let player1 = null;
-  let player2 = null;
-  let turn = "player1";
-  let board = Array(9).fill(null);
+const winConditions = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
 
-  const printBoard = () => {
+const Game = (() => {
+  let player1;
+  let player2;
+  let board = Array(9).fill(null);
+  let player1Playing = true;
+  let winner;
+  let winningCombination;
+
+  const paintBoard = () => {
     $blocks.forEach(($block, index) => {
       $block.innerHTML = board[index];
     });
   };
 
   const printPlayerNames = () => {
-    // const player1Name = prompt("Type first player's name");
-    // const player2Name = prompt("Type second player's name");
-    // player1 = Player(player1Name, X);
-    // player2 = Player(player2Name, O);
-    player1 = Player("Lucas", X);
-    player2 = Player("Suro", O);
+    const player1Name = prompt("Type first player's name");
+    const player2Name = prompt("Type second player's name");
+    player1 = Player(player1Name, X);
+    player2 = Player(player2Name, O);
 
     $player1Name.innerHTML = `${player1.name} (${player1.mark})`;
     $player2Name.innerHTML = `${player2.name} (${player2.mark})`;
   };
 
-  const checkForEnd = () => {
-    const lastPlayer = turn === "player1" ? player2 : player1;
+  const checkIfGameOver = () => {
+    const currentPlayer = player1Playing ? player1 : player2;
 
-    board.forEach((block, index) => {
-      if (block === lastPlayer.mark) {
-        if (index === 0) {
-          if (board[1] === lastPlayer.mark && board[2] === lastPlayer.mark) {
-            console.log("WIN with top horizontal line");
-          }
-          if (board[3] === lastPlayer.mark && board[6] === lastPlayer.mark) {
-            console.log("WIN with left vertical line");
-          }
-          if (board[4] === lastPlayer.mark && board[8] === lastPlayer.mark) {
-            console.log("WIN with topleft-bottomright diagonal line");
-          }
+    const { win, combination } = winConditions.reduce(
+      (acc, condition) => {
+        const allValid = condition.every(
+          index => board[index] === currentPlayer.mark
+        );
+
+        if (allValid) {
+          return {
+            win: true,
+            combination: condition,
+          };
         }
 
-        if (index === 1) {
-          if (board[4] === lastPlayer.mark && board[7] === lastPlayer.mark) {
-            console.log("WIN with middle vertical line");
-          }
-        }
+        return acc;
+      },
+      { win: false, combination: null }
+    );
 
-        if (index === 2) {
-          if (board[5] === lastPlayer.mark && board[8] === lastPlayer.mark) {
-            console.log("WIN with right vertical line");
-          }
-          if (board[4] === lastPlayer.mark && board[6] === lastPlayer.mark) {
-            console.log("WIN with topright-bottomleft line");
-          }
-        }
+    if (win) {
+      winner = currentPlayer;
+      winningCombination = combination;
 
-        if (index === 3) {
-          if (board[4] === lastPlayer.mark && board[5] === lastPlayer.mark) {
-            console.log("WIN with middle horizontal line");
-          }
+      $blocks.forEach((block, index) => {
+        if (combination.includes(index)) {
+          block.classList.add("winning");
         }
+      });
 
-        if (index === 6) {
-          if (board[7] === lastPlayer.mark && board[8] === lastPlayer.mark) {
-            console.log("WIN with bottom horizontal line");
-          }
-        }
+      if (player1Playing) {
+        $player1Crown.classList.add("active");
+      } else {
+        $player2Crown.classList.add("active");
       }
-    });
+
+      return true;
+    }
 
     if (board.every(Boolean)) {
-      console.log("DRAW");
+      // Do some stuff
+      return true;
     }
   };
 
+  const switchTurns = () => {
+    player1Playing = !player1Playing;
+  };
+
   const play = (target, index) => {
+    if (winner) return;
+
     if (target.innerHTML) {
       console.log("Node already clicked!");
       return;
     }
 
-    if (turn === "player1") {
-      board[index] = player1.mark;
-      turn = "player2";
-    } else if (turn === "player2") {
-      board[index] = player2.mark;
-      turn = "player1";
-    }
+    const currentPlayer = player1Playing ? player1 : player2;
+    board[index] = currentPlayer.mark;
+    paintBoard();
+    checkIfGameOver();
 
-    printBoard();
-    checkForEnd();
+    if (winner) return;
+
+    switchTurns();
   };
 
   const setEventListeners = () => {
@@ -106,28 +121,45 @@ const Game = (() => {
     });
   };
 
-  const start = () => {
-    printPlayerNames();
-    printBoard();
-    setEventListeners();
-  };
-
-  const stopGame = () => {
+  const resetState = () => {
     player1 = null;
     player2 = null;
     board = Array(9).fill(null);
+    player1Playing = true;
+    winner = null;
+    winningCombination = null;
+    $blocks.forEach($block => {
+      $block.classList.remove("winning");
+    });
+    $player1Crown.classList.remove("active");
+    $player2Crown.classList.remove("active");
   };
 
-  const restartGame = () => {
-    stopGame();
+  const start = () => {
+    printPlayerNames();
+    paintBoard();
+    setEventListeners();
+  };
+
+  const restart = () => {
+    resetState();
+    paintBoard();
     start();
   };
 
-  return { start };
+  return { start, restart };
 })();
 
 const Player = (name, mark) => {
   return { name, mark };
 };
 
-Game.start();
+$startButton.addEventListener("click", () => {
+  $startButton.classList.add("hide");
+  $game.classList.remove("hide");
+  $restartButton.classList.remove("hide");
+
+  Game.start();
+});
+
+$restartButton.addEventListener("click", Game.restart);
