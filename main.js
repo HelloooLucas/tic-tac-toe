@@ -23,6 +23,31 @@ const winConditions = [
   [2, 4, 6],
 ];
 
+const DisplayController = (() => {
+  const paintBoard = () => {
+    const board = Game.getBoard();
+
+    $blocks.forEach(($block, index) => {
+      $block.innerHTML = board[index];
+    });
+  };
+
+  const printPlayerNames = ({ player1, player2 }) => {
+    $player1Name.innerHTML = `${player1.name} (${player1.mark})`;
+    $player2Name.innerHTML = `${player2.name} (${player2.mark})`;
+  };
+
+  const resetDOMClasses = () => {
+    $blocks.forEach($block => {
+      $block.classList.remove("winning");
+    });
+    $player1Crown.classList.remove("active");
+    $player2Crown.classList.remove("active");
+  };
+
+  return { paintBoard, printPlayerNames, resetDOMClasses };
+})();
+
 const Game = (() => {
   let player1;
   let player2;
@@ -31,20 +56,13 @@ const Game = (() => {
   let winner;
   let winningCombination;
 
-  const paintBoard = () => {
-    $blocks.forEach(($block, index) => {
-      $block.innerHTML = board[index];
-    });
-  };
+  const getBoard = () => board;
 
-  const printPlayerNames = () => {
+  const getPlayerNames = () => {
     const player1Name = prompt("Type first player's name");
     const player2Name = prompt("Type second player's name");
     player1 = Player(player1Name, X);
     player2 = Player(player2Name, O);
-
-    $player1Name.innerHTML = `${player1.name} (${player1.mark})`;
-    $player2Name.innerHTML = `${player2.name} (${player2.mark})`;
   };
 
   const checkIfGameOver = () => {
@@ -107,7 +125,7 @@ const Game = (() => {
 
     const currentPlayer = player1Playing ? player1 : player2;
     board[index] = currentPlayer.mark;
-    paintBoard();
+    DisplayController.paintBoard();
     checkIfGameOver();
 
     if (winner) return;
@@ -128,26 +146,23 @@ const Game = (() => {
     player1Playing = true;
     winner = null;
     winningCombination = null;
-    $blocks.forEach($block => {
-      $block.classList.remove("winning");
-    });
-    $player1Crown.classList.remove("active");
-    $player2Crown.classList.remove("active");
   };
 
   const start = () => {
-    printPlayerNames();
-    paintBoard();
+    getPlayerNames();
+    DisplayController.printPlayerNames({ player1, player2 });
+    DisplayController.paintBoard();
     setEventListeners();
   };
 
   const restart = () => {
     resetState();
-    paintBoard();
+    DisplayController.resetDOMClasses();
+    DisplayController.paintBoard();
     start();
   };
 
-  return { start, restart };
+  return { start, restart, getBoard };
 })();
 
 const Player = (name, mark) => {
