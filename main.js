@@ -9,20 +9,6 @@ const $player2Crown = document.querySelector(".player2 .crown");
 const $board = document.querySelector(".board");
 const $blocks = [...$board.querySelectorAll(".block")];
 
-const X = "X";
-const O = "O";
-
-const winConditions = [
-  [0, 1, 2],
-  [3, 4, 5],
-  [6, 7, 8],
-  [0, 3, 6],
-  [1, 4, 7],
-  [2, 5, 8],
-  [0, 4, 8],
-  [2, 4, 6],
-];
-
 const DisplayController = (() => {
   const paintBoard = () => {
     const board = Game.getBoard();
@@ -55,43 +41,43 @@ const Game = (() => {
   let player1Playing = true;
   let winner;
   let winningCombination;
+  const winConditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
 
   const getBoard = () => board;
 
   const getPlayerNames = () => {
     const player1Name = prompt("Type first player's name");
     const player2Name = prompt("Type second player's name");
-    player1 = Player(player1Name, X);
-    player2 = Player(player2Name, O);
+    player1 = Player(player1Name, "X");
+    player2 = Player(player2Name, "O");
   };
 
   const checkIfGameOver = () => {
     const currentPlayer = player1Playing ? player1 : player2;
 
-    const { win, combination } = winConditions.reduce(
-      (acc, condition) => {
-        const allValid = condition.every(
-          index => board[index] === currentPlayer.mark
-        );
+    winConditions.forEach(condition => {
+      const allValid = condition.every(
+        index => board[index] === currentPlayer.mark
+      );
 
-        if (allValid) {
-          return {
-            win: true,
-            combination: condition,
-          };
-        }
+      if (allValid && !winner) {
+        winner = currentPlayer;
+        winningCombination = condition;
+      }
+    });
 
-        return acc;
-      },
-      { win: false, combination: null }
-    );
-
-    if (win) {
-      winner = currentPlayer;
-      winningCombination = combination;
-
+    if (winner) {
       $blocks.forEach((block, index) => {
-        if (combination.includes(index)) {
+        if (winningCombination.includes(index)) {
           block.classList.add("winning");
         }
       });
@@ -101,12 +87,10 @@ const Game = (() => {
       } else {
         $player2Crown.classList.add("active");
       }
-
-      return true;
     }
 
     if (board.every(Boolean)) {
-      // Do some stuff
+      // Do some stuff in case of draw
       return true;
     }
   };
